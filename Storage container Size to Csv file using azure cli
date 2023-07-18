@@ -1,0 +1,27 @@
+Connect-AzAccount
+
+$RG = "Resource Group name" # Give you RG name
+
+$gs=Get-AzStorageAccount -ResourceGroupName $RG
+$gts=$gs.StorageAccountName
+
+foreach($nm in $gts){
+
+ $storageAccount = Get-AzStorageAccount -ResourceGroupName $RG -Name $nm
+ $ctx = $storageAccount.Context 
+ $cn = Get-AzStorageContainer -IncludeDeleted -Context $ctx 
+ write-host "`n"
+ foreach($containerName in $cn.Name){ 
+ $listOfBlobs = Get-AzStorageBlob -Container $containerName -Context $ctx
+ $length = 0
+ $listOfBlobs | ForEach-Object {$length = $length + $_.Length}
+ $TS = $length /1MB
+ Write-Host "StorageAccount ="$storageAccount.StorageAccountName"| Container Name = $containerName | Total Size = $TS"
+
+ New-Object -TypeName PSObject -Property @{
+    Total_Size = $TS
+    Container_Name = $containerName
+    StorageAccount = $storageAccount.StorageAccountName    
+  } | Export-Csv Storage.csv -notype -Append -force
+}  
+} 
