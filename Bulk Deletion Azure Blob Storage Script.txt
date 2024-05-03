@@ -1,0 +1,24 @@
+########################################################
+
+Set-AzContext -Subscription "a12t****-****-****-****-************" #  Subscription ID
+$RG = "<Resource Group Name>"
+$ST = "<Storage Account Name>"
+$CT = "<Containers Name>"
+
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $RG -Name $ST
+$ctx = $storageAccount.Context
+
+$listOfBlobs = Get-AzStorageBlob -Container $ST -Context $ctx
+$listOfBlobs 
+
+$ln = $listOfBlobs
+
+foreach ($lns in $ln) {
+
+       $lns | Remove-AzStorageBlob
+        Write-Host "Deleted blob $($lns.Name)"
+
+    }
+
+#######################################################
+*Once Done Check in the Portal if the Bolb files are Deleted inside the Container
