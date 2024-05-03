@@ -1,0 +1,50 @@
+#############################################################################################################
+
+Set-AzContext -Subscription "a12t****-****-****-****-************" # Subscription ID
+$RG = "<Resource Group Name>"
+$ST = "<Storage Account Name>"
+$CT = "<Containers Name>"
+
+$storageAccount = Get-AzStorageAccount -ResourceGroupName $RG -Name $ST # Get Storage Account  
+$ctx = $storageAccount.Context 
+
+###########
+                                   (With Prefix)
+
+$listOfBlobs = Get-AzStorageBlob -Container $CT -Prefix "<Specify File name if the are simler names>" -Context $ctx -Maxcount 150000 
+
+# Note: Setting the Max count helps not to crash if u have Large number of files inside Container , Prefix helps in finding files name if the are large number of files in the Container
+
+                                OR (Without Prefix)
+
+$listOfBlobs = Get-AzStorageBlob -Container $CT -Context $ctx -Maxcount 150000 
+
+#############
+
+$listOfBlobs.count                            # Confirming the Count of Files
+$listOfBlobs |Select-Object Name,Length       # Shows the Selected Files Name and Length
+$listOfBlobs                                  # Shows the Files which are Selected
+
+
+$ln = $listOfBlobs | Where-Object {$_.Length -eq 0} # Filtering Files Which have 0 Bytes
+$ln.count                                           # Confirming the Count of 0 Byte files
+$ln |Select-Object Name,Length                      # Shows the Selected Files Name and Length
+$ln                                                 # list 0 Byte files
+
+
+# Deletion of 0 Byte file 
+
+foreach ($lns in $ln) {
+    if ($lns.Length -eq 0) 
+   {
+        $lns | Remove-AzStorageBlob
+        Write-Host "Deleted blob $($lns.Name)"
+    }
+}
+
+# In the above statment it will go through each 0 Byte file and confirms its 0 Byte files and Deletes it.
+
+###############################################################################################################
+*Once Done confirm in azure portal all 0 byte files are Deleted inside the Container
+
+
