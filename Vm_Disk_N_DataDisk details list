@@ -1,0 +1,22 @@
+$dklst = @()
+$nd = Get-azVm |select Name   
+
+ForEach ($ds in $nd.name){
+$dklst += "-------------------------------- VM_Details --------------------------------"
+ $VM = Get-azVM -Name $ds
+ $OD = $VM.StorageProfile.OsDisk.Name
+ $DD = $VM.StorageProfile.DataDisks.Name
+ $dklst += "VM Name:"
+ $dklst += $ds 
+ $dklst += "Os Disk:" 
+ $dklst += $OD
+ if ($DD -eq $null)
+   {  
+    $dklst += "Data Disk : None"
+   }else{
+    $dklst += "Data Disk:"
+    $dklst += $DD
+   }
+}
+
+$dklst
